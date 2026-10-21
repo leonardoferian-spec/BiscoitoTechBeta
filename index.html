@@ -12,6 +12,8 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700;900&family=Great+Vibes&family=Plus+Jakarta+Sans:wght@400;600;700&display=swap" rel="stylesheet">
+    <!-- html2canvas for capturing the screen -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 
     <style>
         /* Custom Typography & Base Styles */
@@ -302,8 +304,14 @@
                     Que a paz ilumine sua casa neste Natal. ✨
                 </p>
 
-                <div class="text-amber-800/90 text-xs sm:text-sm font-semibold border-t border-amber-300/80 pt-2 mt-1">
-                    🎄 Feliz Natal! 🎄
+                <div class="border-t border-amber-300/80 pt-2 mt-1 flex items-center justify-center gap-3">
+                    <span class="text-amber-800/90 text-xs sm:text-sm font-semibold">
+                        🎄 Feliz Natal! 🎄
+                    </span>
+                    <!-- Share Button (ao lado do Feliz Natal) -->
+                    <button id="btnShare" class="text-[10px] sm:text-xs text-amber-700 hover:text-amber-900 flex items-center justify-center gap-1.5 border border-amber-400/50 rounded-full px-2.5 py-0.5 bg-amber-200/50 transition-colors">
+                        <i class="fa-solid fa-share-nodes"></i> Compartilhar
+                    </button>
                 </div>
             </div>
 
@@ -591,6 +599,7 @@
                 this.statusIndicator = document.getElementById('statusIndicator');
                 this.btnReset = document.getElementById('btnReset');
                 this.fortuneText = document.getElementById('fortuneText');
+                this.btnShare = document.getElementById('btnShare');
 
                 this.initEvents();
             }
@@ -598,6 +607,57 @@
             initEvents() {
                 this.wrapper.addEventListener('click', (e) => this.handleCookieClick(e));
                 this.btnReset.addEventListener('click', () => this.resetCookie());
+                this.btnShare.addEventListener('click', () => this.shareFortune());
+            }
+
+            async shareFortune() {
+                // Change button text briefly to show loading state
+                const originalContent = this.btnShare.innerHTML;
+                this.btnShare.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Gerando...';
+                
+                // Hide Reset button temporarily so it doesn't appear in the screenshot
+                this.btnReset.style.display = 'none';
+
+                try {
+                    // Capture the entire body (Logo, Background, Snow, and Parchment)
+                    const canvas = await html2canvas(document.body, {
+                        scale: 2, // High resolution
+                        backgroundColor: null,
+                        ignoreElements: (element) => element.id === 'btnShare' // Hide the share button in the picture
+                    });
+
+                    canvas.toBlob(async (blob) => {
+                        if (!blob) throw new Error("Falha ao gerar a imagem");
+                        
+                        const file = new File([blob], 'biscoito-alegre-senai.png', { type: 'image/png' });
+
+                        // Check if browser supports the native Web Share API with files (mostly Mobile browsers)
+                        if (navigator.canShare && navigator.canShare({ files: [file] })) {
+                            await navigator.share({
+                                title: 'Biscoito Alegre - SENAI',
+                                text: 'Olha a mensagem de Natal que tirei no SENAI!',
+                                files: [file]
+                            });
+                        } else {
+                            // Fallback for Desktop/Unsupported browsers: Download the image
+                            const url = URL.createObjectURL(blob);
+                            const a = document.createElement('a');
+                            a.href = url;
+                            a.download = 'biscoito-alegre-senai.png';
+                            document.body.appendChild(a);
+                            a.click();
+                            document.body.removeChild(a);
+                            URL.revokeObjectURL(url);
+                        }
+                    }, 'image/png');
+                } catch (error) {
+                    console.error('Erro ao compartilhar:', error);
+                    alert("Não foi possível gerar a imagem para compartilhar.");
+                } finally {
+                    // Restore UI
+                    this.btnShare.innerHTML = originalContent;
+                    this.btnReset.style.display = '';
+                }
             }
 
             handleCookieClick(e) {
