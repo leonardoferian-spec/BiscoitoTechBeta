@@ -181,13 +181,15 @@
     </div>
 
     <!-- Header Section -->
-    <header class="z-10 text-center mt-1 sm:mt-3 max-w-xl flex-shrink-0 flex flex-col items-center">
+    <header class="z-10 text-center mt-1 sm:mt-3 max-w-xl flex-shrink-0 flex flex-col items-center w-full">
         <!-- Logo do SENAI -->
         <img src="logo_senai.png" alt="Logo SENAI" class="h-6 sm:h-8 md:h-10 w-auto mb-2 object-contain drop-shadow-[0_2px_5px_rgba(0,0,0,0.6)]">
         
-        <div class="inline-flex items-center gap-1.5 px-2.5 py-0.5 sm:px-3 sm:py-1 rounded-full bg-emerald-900/60 border border-emerald-500/30 text-emerald-300 text-xs sm:text-sm font-semibold mb-1 backdrop-blur-md">
-            <i class="fa-solid fa-snowflake text-amber-300 animate-spin" style="animation-duration: 8s;"></i>
-            <span>Senai em clima natalino!</span>
+        <div id="senaiBadge" class="inline-flex items-center justify-center px-3 py-1.5 rounded-full bg-emerald-900/60 border border-emerald-500/30 text-emerald-300 text-xs sm:text-sm font-semibold mb-1 backdrop-blur-md max-w-full">
+            <span class="w-4 h-4 flex items-center justify-center mr-1.5 shrink-0">
+                <i class="fa-solid fa-snowflake text-amber-300 animate-spin" style="animation-duration: 8s;"></i>
+            </span>
+            <span class="whitespace-nowrap">Senai em clima natalino!</span>
         </div>
         <h1 class="text-2xl sm:text-4xl font-festive font-extrabold text-amber-200 tracking-wide drop-shadow-[0_2px_10px_rgba(0,0,0,0.8)]">
             Biscoito Alegre
@@ -623,7 +625,18 @@
                     const canvas = await html2canvas(document.body, {
                         scale: 2, // High resolution
                         backgroundColor: null,
-                        ignoreElements: (element) => element.id === 'btnShare' // Hide the share button in the picture
+                        ignoreElements: (element) => element.id === 'btnShare', // Hide the share button in the picture
+                        onclone: (clonedDoc) => {
+                            // Altera o estilo da tag SENAI apenas na foto capturada
+                            const badge = clonedDoc.getElementById('senaiBadge');
+                            if (badge) {
+                                badge.classList.remove('bg-emerald-900/60', 'border', 'border-emerald-500/30', 'text-emerald-300', 'backdrop-blur-md');
+                                badge.classList.add('text-white');
+                                badge.style.backgroundColor = 'transparent';
+                                badge.style.border = 'none';
+                                badge.style.boxShadow = 'none';
+                            }
+                        }
                     });
 
                     canvas.toBlob(async (blob) => {
