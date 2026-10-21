@@ -1,0 +1,689 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Biscoito Alegre de Natal</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- FontAwesome for Christmas Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700;900&family=Great+Vibes&family=Plus+Jakarta+Sans:wght@400;600;700&display=swap" rel="stylesheet">
+
+    <style>
+        /* Custom Typography & Base Styles */
+        html, body {
+            height: 100%;
+            height: 100dvh;
+            overflow: hidden;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            background: radial-gradient(circle at center, #1b3d2f 0%, #0a1f16 60%, #040d09 100%);
+            color: #f8fafc;
+            user-select: none;
+            -webkit-user-select: none;
+            touch-action: manipulation;
+        }
+
+        .font-festive {
+            font-family: 'Cinzel', serif;
+        }
+
+        .font-script {
+            font-family: 'Great Vibes', cursive;
+        }
+
+        /* Canvas Backdrop */
+        #snowCanvas, #sparkleCanvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+        }
+
+        #snowCanvas { z-index: 1; }
+        #sparkleCanvas { z-index: 20; }
+
+        /* Shake Animations for Cookie */
+        @keyframes shakeLight {
+            0%, 100% { transform: rotate(0deg) scale(1); }
+            20% { transform: rotate(-3deg) scale(1.02); }
+            40% { transform: rotate(3deg) scale(1.02); }
+            60% { transform: rotate(-2deg) scale(1.01); }
+            80% { transform: rotate(2deg) scale(1.01); }
+        }
+
+        @keyframes shakeStrong {
+            0%, 100% { transform: rotate(0deg) scale(1); }
+            15% { transform: rotate(-8deg) translate(-5px, 3px) scale(1.06); }
+            30% { transform: rotate(8deg) translate(5px, -3px) scale(1.06); }
+            45% { transform: rotate(-6deg) translate(-4px, -3px) scale(1.04); }
+            60% { transform: rotate(6deg) translate(4px, 3px) scale(1.04); }
+            75% { transform: rotate(-4deg) translate(-2px, 2px) scale(1.02); }
+        }
+
+        .shake-1 {
+            animation: shakeLight 0.4s ease-in-out;
+        }
+
+        .shake-2 {
+            animation: shakeStrong 0.5s ease-in-out;
+        }
+
+        /* Cookie Complete Disappearance Transition */
+        .cookie-container {
+            transition: transform 0.6s cubic-bezier(0.34, 1.56, 0.64, 1), opacity 0.5s ease-out;
+        }
+
+        .cookie-container.vanished {
+            opacity: 0 !important;
+            transform: scale(0.15) rotate(40deg) !important;
+            pointer-events: none !important;
+            filter: drop-shadow(0 0 35px rgba(251, 191, 36, 1));
+        }
+
+        /* Parchment Scroll Reveal */
+        .parchment {
+            background: linear-gradient(135deg, #fffdf0 0%, #fef3c7 50%, #fde68a 100%);
+            border: 2px solid #d97706;
+            box-shadow: 0 15px 35px -5px rgba(0, 0, 0, 0.6), 0 0 25px rgba(245, 158, 11, 0.5);
+            transform: scale(0) rotate(-8deg);
+            opacity: 0;
+            transition: all 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+
+        .parchment.show {
+            transform: scale(1) rotate(0deg);
+            opacity: 1;
+        }
+
+        /* Festive Lights String */
+        .light-string {
+            display: flex;
+            justify-content: space-around;
+            position: absolute;
+            top: -10px;
+            width: 100%;
+            z-index: 10;
+        }
+
+        .bulb {
+            width: 12px;
+            height: 18px;
+            border-radius: 50%;
+            animation: pulseLight 1.8s infinite alternate;
+        }
+
+        .bulb:nth-child(4n+1) { background: #ef4444; box-shadow: 0 0 10px #ef4444; animation-delay: 0s; }
+        .bulb:nth-child(4n+2) { background: #10b981; box-shadow: 0 0 10px #10b981; animation-delay: 0.4s; }
+        .bulb:nth-child(4n+3) { background: #fbbf24; box-shadow: 0 0 10px #fbbf24; animation-delay: 0.8s; }
+        .bulb:nth-child(4n+4) { background: #3b82f6; box-shadow: 0 0 10px #3b82f6; animation-delay: 1.2s; }
+
+        @keyframes pulseLight {
+            0% { opacity: 0.4; transform: scale(0.9); }
+            100% { opacity: 1; transform: scale(1.1); }
+        }
+
+        /* Floating effect before broken */
+        @keyframes gentleFloat {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-8px); }
+        }
+
+        .floating-cookie {
+            animation: gentleFloat 3s ease-in-out infinite;
+        }
+
+        /* Button Hover Magic */
+        .btn-magic {
+            background: linear-gradient(135deg, #dc2626 0%, #991b1b 100%);
+            box-shadow: 0 4px 20px rgba(220, 38, 38, 0.4);
+            transition: all 0.3s ease;
+        }
+        .btn-magic:hover {
+            transform: translateY(-2px) scale(1.03);
+            box-shadow: 0 8px 25px rgba(220, 38, 38, 0.6);
+            background: linear-gradient(135deg, #ef4444 0%, #b91c1c 100%);
+        }
+
+        /* Compact Layout Adjustment for Low-Height Screens */
+        @media (max-height: 680px) {
+            header h1 { font-size: 1.5rem !important; }
+            header p { display: none; }
+            .parchment { padding: 0.85rem !important; }
+            #fortuneText { font-size: 1.35rem !important; min-height: 45px !important; margin-top: 0.25rem !important; margin-bottom: 0.25rem !important; }
+        }
+    </style>
+</head>
+<body class="h-screen h-[100dvh] w-full flex flex-col items-center justify-between p-2 sm:p-4 overflow-hidden relative select-none box-border">
+
+    <!-- Canvas Layers for Snow and Sparkles -->
+    <canvas id="snowCanvas"></canvas>
+    <canvas id="sparkleCanvas"></canvas>
+
+    <!-- Christmas Decorative Lights Top Bar -->
+    <div class="light-string pointer-events-none">
+        <div class="bulb"></div><div class="bulb"></div><div class="bulb"></div>
+        <div class="bulb"></div><div class="bulb"></div><div class="bulb"></div>
+        <div class="bulb"></div><div class="bulb"></div><div class="bulb"></div>
+        <div class="bulb"></div><div class="bulb"></div><div class="bulb"></div>
+    </div>
+
+    <!-- Header Section -->
+    <header class="z-10 text-center mt-1 sm:mt-3 max-w-xl flex-shrink-0 flex flex-col items-center">
+        <!-- Logo do SENAI -->
+        <img src="logo_senai.png" alt="Logo SENAI" class="h-6 sm:h-8 md:h-10 w-auto mb-2 object-contain drop-shadow-[0_2px_5px_rgba(0,0,0,0.6)]">
+        
+        <div class="inline-flex items-center gap-1.5 px-2.5 py-0.5 sm:px-3 sm:py-1 rounded-full bg-emerald-900/60 border border-emerald-500/30 text-emerald-300 text-xs sm:text-sm font-semibold mb-1 backdrop-blur-md">
+            <i class="fa-solid fa-snowflake text-amber-300 animate-spin" style="animation-duration: 8s;"></i>
+            <span>Senai em clima natalino!</span>
+        </div>
+        <h1 class="text-2xl sm:text-4xl font-festive font-extrabold text-amber-200 tracking-wide drop-shadow-[0_2px_10px_rgba(0,0,0,0.8)]">
+            Biscoito Alegre
+        </h1>
+        <p class="text-emerald-100/80 text-xs sm:text-sm mt-1 font-light">
+            Clique no biscoito de Natal para quebrá-lo e revelar sua mensagem especial.
+        </p>
+    </header>
+
+    <!-- Central Interactive Area -->
+    <main class="z-10 my-auto flex-1 flex flex-col items-center justify-center w-full max-w-lg relative py-1 overflow-hidden">
+        
+        <!-- Interactive Cookie & Message Container -->
+        <div class="relative flex items-center justify-center w-full min-h-[220px] sm:min-h-[280px] max-h-[42vh]">
+            
+            <!-- Cookie SVG Container (Cel-Shaded Vector Cartoon Style) -->
+            <div id="cookieWrapper" class="cookie-container cookie-glow floating-cookie cursor-pointer transition-all duration-300 relative z-20 flex items-center justify-center">
+                <svg id="cookieSvg" class="w-52 h-52 sm:w-68 sm:h-68 md:w-76 md:h-76 max-h-[38vh] max-w-[38vh] filter drop-shadow-[0_12px_20px_rgba(0,0,0,0.6)]" viewBox="0 0 300 300">
+                    <!-- LEFT HALF GROUP -->
+                    <g id="leftHalf" class="cookie-half-left">
+                        <!-- Dough Base Left -->
+                        <path d="M 150 20 C 75 20, 20 75, 20 150 C 20 225, 75 280, 150 280 L 142 235 L 160 190 L 138 145 L 158 100 L 142 60 Z" 
+                              fill="#D9721E" stroke="#2A1206" stroke-width="6" stroke-linejoin="round" />
+
+                        <!-- Cel-Shadow Chapada (Hard Shadow Arc Left Bottom) -->
+                        <path d="M 23 165 C 27 220, 75 277, 150 277 L 142 235 L 160 190 L 145 158 C 95 195, 45 190, 23 165 Z" 
+                              fill="#9C4408" opacity="0.9" />
+
+                        <!-- Cel Highlight Chapada (Hard Top Light Arc Left) -->
+                        <path d="M 150 23 C 85 23, 35 70, 28 120 C 42 75, 90 32, 150 30 Z" 
+                              fill="#F7A24B" />
+
+                        <!-- Scalloped White Icing Piping Left (Cel-Shaded) -->
+                        <!-- Shadow under icing -->
+                        <path d="M 150 38 C 88 38, 38 88, 38 150 C 38 212, 88 262, 150 262" 
+                              fill="none" stroke="#2A1206" stroke-width="11" stroke-dasharray="14 10" stroke-linecap="round" opacity="0.3" transform="translate(0, 3)"/>
+                        <!-- White Piping -->
+                        <path d="M 150 38 C 88 38, 38 88, 38 150 C 38 212, 88 262, 150 262" 
+                              fill="none" stroke="#FFFFFF" stroke-width="9" stroke-dasharray="14 10" stroke-linecap="round" stroke-linejoin="round"/>
+
+                        <!-- Cel-Shaded Sugar Pearls & Sprinkles Left -->
+                        <g>
+                            <!-- Blue Sugar Pearl -->
+                            <circle cx="85" cy="215" r="8" fill="#3B82F6" stroke="#2A1206" stroke-width="2"/>
+                            <path d="M 80 212 A 4 4 0 0 1 88 210 A 5 5 0 0 0 80 212 Z" fill="#FFFFFF"/>
+                        </g>
+                    </g>
+
+                    <!-- RIGHT HALF GROUP -->
+                    <g id="rightHalf" class="cookie-half-right">
+                        <!-- Dough Base Right -->
+                        <path d="M 150 20 C 225 20, 280 75, 280 150 C 280 225, 225 280, 150 280 L 142 235 L 160 190 L 138 145 L 158 100 L 142 60 Z" 
+                              fill="#D9721E" stroke="#2A1206" stroke-width="6" stroke-linejoin="round" />
+
+                        <!-- Cel-Shadow Chapada (Hard Shadow Arc Right Bottom) -->
+                        <path d="M 277 165 C 273 220, 225 277, 150 277 L 142 235 L 160 190 L 155 158 C 205 195, 255 190, 277 165 Z" 
+                              fill="#9C4408" opacity="0.9" />
+
+                        <!-- Cel Highlight Chapada (Hard Top Light Arc Right) -->
+                        <path d="M 150 23 C 215 23, 265 70, 272 120 C 258 75, 210 32, 150 30 Z" 
+                              fill="#F7A24B" />
+
+                        <!-- Scalloped White Icing Piping Right -->
+                        <path d="M 150 38 C 212 38, 262 88, 262 150 C 262 212, 212 262, 150 262" 
+                              fill="none" stroke="#2A1206" stroke-width="11" stroke-dasharray="14 10" stroke-linecap="round" opacity="0.3" transform="translate(0, 3)"/>
+                        <path d="M 150 38 C 212 38, 262 88, 262 150 C 262 212, 212 262, 150 262" 
+                              fill="none" stroke="#FFFFFF" stroke-width="9" stroke-dasharray="14 10" stroke-linecap="round" stroke-linejoin="round"/>
+
+                        <!-- Right Decorations -->
+                        <g>
+                            <circle cx="215" cy="110" r="5" fill="#EF4444" stroke="#2A1206" stroke-width="2"/>
+                            <!-- Star -->
+                            <polygon points="230,195 235,210 250,210 238,220 242,235 230,225 218,235 222,220 210,210 225,210" fill="#FDE047" stroke="#2A1206" stroke-width="2"/>
+                        </g>
+                    </g>
+
+                    <!-- DYNAMIC OVERLAY CRACK LINES (CEL-SHADED SHATTERING EFFECT) -->
+                    <g id="crackOverlay" class="pointer-events-none">
+                        
+                        <!-- Click 1 Cracks: Main partial crack + small side branches (SEM BRILHO) -->
+                        <g id="crackStage1" style="opacity: 0; transition: opacity 0.2s ease-in-out;">
+                            <path d="M 150 20 L 146 55 L 154 95 L 142 140
+                                     M 146 55 L 120 70 L 105 60
+                                     M 154 95 L 185 85 L 210 100" 
+                                  fill="none" stroke="#3A1A08" stroke-width="3.5" 
+                                  stroke-linecap="round" stroke-linejoin="round" opacity="0.85"/>
+                        </g>
+
+                        <!-- Click 2 Cracks: Full main crack + deep shattering branches across both halves (SEM BRILHO) -->
+                        <g id="crackStage2" style="opacity: 0; transition: opacity 0.2s ease-in-out;">
+                            <path d="M 150 20 L 146 55 L 154 95 L 142 140 L 156 185 L 144 230 L 150 280 
+                                     M 146 55 L 120 70 L 105 60 
+                                     M 154 95 L 185 85 L 210 100
+                                     M 142 140 L 100 155 L 75 145 
+                                     M 156 185 L 195 200 L 225 185
+                                     M 144 230 L 115 245 L 90 230" 
+                                  fill="none" stroke="#3A1A08" stroke-width="4.5" 
+                                  stroke-linecap="round" stroke-linejoin="round" opacity="0.95"/>
+                        </g>
+                    </g>
+                </svg>
+            </div>
+
+            <!-- Parchment Message Card (Revealed on 3rd click) -->
+            <div id="parchmentCard" class="parchment absolute z-30 w-[92%] sm:w-[400px] p-4 sm:p-6 rounded-2xl text-center pointer-events-auto max-h-[85%] flex flex-col justify-between">
+                <div class="absolute top-2 left-2 text-amber-600/40 text-xs"><i class="fa-solid fa-holly-berry"></i></div>
+                <div class="absolute top-2 right-2 text-amber-600/40 text-xs"><i class="fa-solid fa-holly-berry"></i></div>
+                <div class="absolute bottom-2 left-2 text-amber-600/40 text-xs"><i class="fa-solid fa-snowflake"></i></div>
+                <div class="absolute bottom-2 right-2 text-amber-600/40 text-xs"><i class="fa-solid fa-snowflake"></i></div>
+
+                <div class="text-amber-800 text-[10px] sm:text-xs font-extrabold tracking-widest uppercase mb-1">Mensagem de Natal</div>
+                
+                <p id="fortuneText" class="text-amber-950 font-script text-2xl sm:text-3xl font-bold leading-relaxed my-2 min-h-[55px] sm:min-h-[70px] flex items-center justify-center">
+                    Que a paz ilumine sua casa neste Natal. ✨
+                </p>
+
+                <div class="text-amber-800/90 text-xs sm:text-sm font-semibold border-t border-amber-300/80 pt-2 mt-1">
+                    🎄 Feliz Natal! 🎄
+                </div>
+            </div>
+
+        </div>
+
+        <!-- Status & Click Guidance Indicator -->
+        <div id="statusIndicator" class="mt-2 sm:mt-3 px-3.5 py-1.5 rounded-full bg-slate-900/60 border border-slate-700/50 text-slate-200 text-xs sm:text-sm flex items-center gap-2 backdrop-blur-md transition-all">
+            <span class="inline-block w-2 h-2 rounded-full bg-amber-400 animate-ping"></span>
+            <span id="statusText">Clique no biscoito para começar!</span>
+        </div>
+
+        <!-- Action Button (Pegar outro biscoito) -->
+        <button id="btnReset" class="btn-magic hidden mt-3 px-5 py-2.5 rounded-full text-white font-bold text-xs sm:text-sm flex items-center gap-2 cursor-pointer z-30">
+            <i class="fa-solid fa-cookie-bite text-amber-300"></i>
+            <span>Pegar Outro Biscoito</span>
+        </button>
+
+    </main>
+
+    <script>
+        /**
+         * Web Audio Synthesizer for Cookie Cracks, Swooshes, and Christmas Chimes
+         */
+        class AudioController {
+            constructor() {
+                this.ctx = null;
+            }
+
+            init() {
+                if (!this.ctx) {
+                    const AudioCtx = window.AudioContext || window.webkitAudioContext;
+                    if (AudioCtx) this.ctx = new AudioCtx();
+                }
+                if (this.ctx && this.ctx.state === 'suspended') {
+                    this.ctx.resume();
+                }
+            }
+
+            playCrack(intensity = 1) {
+                this.init();
+                if (!this.ctx) return;
+
+                const now = this.ctx.currentTime;
+                const bufferSize = this.ctx.sampleRate * 0.08;
+                const buffer = this.ctx.createBuffer(1, bufferSize, this.ctx.sampleRate);
+                const data = buffer.getChannelData(0);
+                for (let i = 0; i < bufferSize; i++) {
+                    data[i] = (Math.random() * 2 - 1) * Math.exp(-i / (bufferSize * 0.15));
+                }
+
+                const noise = this.ctx.createBufferSource();
+                noise.buffer = buffer;
+
+                const filter = this.ctx.createBiquadFilter();
+                filter.type = 'highpass';
+                filter.frequency.setValueAtTime(800 * intensity, now);
+
+                const gain = this.ctx.createGain();
+                gain.gain.setValueAtTime(0.3 * intensity, now);
+                gain.gain.exponentialRampToValueAtTime(0.001, now + 0.08);
+
+                noise.connect(filter);
+                filter.connect(gain);
+                gain.connect(this.ctx.destination);
+
+                noise.start(now);
+            }
+
+            playChristmasChime() {
+                this.init();
+                if (!this.ctx) return;
+
+                const now = this.ctx.currentTime;
+                const notes = [523.25, 659.25, 783.99, 1046.50, 1318.51]; // C5, E5, G5, C6, E6
+                
+                notes.forEach((freq, idx) => {
+                    const osc = this.ctx.createOscillator();
+                    const gain = this.ctx.createGain();
+
+                    osc.type = 'sine';
+                    osc.frequency.setValueAtTime(freq, now + idx * 0.08);
+
+                    gain.gain.setValueAtTime(0, now + idx * 0.08);
+                    gain.gain.linearRampToValueAtTime(0.15, now + idx * 0.08 + 0.02);
+                    gain.gain.exponentialRampToValueAtTime(0.0001, now + idx * 0.08 + 0.8);
+
+                    osc.connect(gain);
+                    gain.connect(this.ctx.destination);
+
+                    osc.start(now + idx * 0.08);
+                    osc.stop(now + idx * 0.08 + 0.85);
+                });
+            }
+
+            playSwoosh() {
+                this.init();
+                if (!this.ctx) return;
+
+                const now = this.ctx.currentTime;
+                const osc = this.ctx.createOscillator();
+                const gain = this.ctx.createGain();
+
+                osc.type = 'sine';
+                osc.frequency.setValueAtTime(300, now);
+                osc.frequency.exponentialRampToValueAtTime(800, now + 0.2);
+
+                gain.gain.setValueAtTime(0.1, now);
+                gain.gain.linearRampToValueAtTime(0, now + 0.2);
+
+                osc.connect(gain);
+                gain.connect(this.ctx.destination);
+
+                osc.start(now);
+                osc.stop(now + 0.2);
+            }
+        }
+
+        const audio = new AudioController();
+
+        /**
+         * Canvas Particle System for Snow flakes and Golden Sparkle Explosions
+         */
+        class ParticleSystem {
+            static init() {
+                this.snowCanvas = document.getElementById('snowCanvas');
+                this.snowCtx = this.snowCanvas.getContext('2d');
+                this.sparkleCanvas = document.getElementById('sparkleCanvas');
+                this.sparkleCtx = this.sparkleCanvas.getContext('2d');
+
+                this.snowFlakes = [];
+                this.sparkles = [];
+
+                this.resize();
+                window.addEventListener('resize', () => this.resize());
+
+                this.createSnow();
+                this.animate();
+            }
+
+            static resize() {
+                this.width = window.innerWidth;
+                this.height = window.innerHeight;
+                if (this.snowCanvas) {
+                    this.snowCanvas.width = this.width;
+                    this.snowCanvas.height = this.height;
+                }
+                if (this.sparkleCanvas) {
+                    this.sparkleCanvas.width = this.width;
+                    this.sparkleCanvas.height = this.height;
+                }
+            }
+
+            static createSnow() {
+                const count = Math.min(Math.floor(this.width / 10), 70);
+                this.snowFlakes = [];
+                for (let i = 0; i < count; i++) {
+                    this.snowFlakes.push({
+                        x: Math.random() * this.width,
+                        y: Math.random() * this.height,
+                        radius: Math.random() * 2.5 + 0.8,
+                        speedY: Math.random() * 0.8 + 0.3,
+                        speedX: Math.random() * 0.4 - 0.2,
+                        opacity: Math.random() * 0.6 + 0.3
+                    });
+                }
+            }
+
+            static addSparkles(x, y, count = 20, isBurst = false) {
+                for (let i = 0; i < count; i++) {
+                    const angle = Math.random() * Math.PI * 2;
+                    const speed = isBurst ? (Math.random() * 7 + 2) : (Math.random() * 3 + 1);
+                    this.sparkles.push({
+                        x: x,
+                        y: y,
+                        vx: Math.cos(angle) * speed,
+                        vy: Math.sin(angle) * speed - (isBurst ? 1 : 0),
+                        radius: Math.random() * (isBurst ? 4 : 2.5) + 1,
+                        color: isBurst 
+                            ? ['#fef08a', '#fde047', '#fbbf24', '#ffffff', '#ef4444'][Math.floor(Math.random() * 5)]
+                            : ['#fef08a', '#fbbf24', '#ffffff'][Math.floor(Math.random() * 3)],
+                        life: 1.0,
+                        decay: Math.random() * 0.02 + (isBurst ? 0.015 : 0.025)
+                    });
+                }
+            }
+
+            static animate() {
+                // Draw Falling Snow
+                this.snowCtx.clearRect(0, 0, this.width, this.height);
+                this.snowCtx.fillStyle = '#ffffff';
+                
+                for (let flake of this.snowFlakes) {
+                    this.snowCtx.globalAlpha = flake.opacity;
+                    this.snowCtx.beginPath();
+                    this.snowCtx.arc(flake.x, flake.y, flake.radius, 0, Math.PI * 2);
+                    this.snowCtx.fill();
+
+                    flake.y += flake.speedY;
+                    flake.x += flake.speedX;
+
+                    if (flake.y > this.height) {
+                        flake.y = -10;
+                        flake.x = Math.random() * this.width;
+                    }
+                }
+
+                // Draw Sparkles
+                this.sparkleCtx.clearRect(0, 0, this.width, this.height);
+                for (let i = this.sparkles.length - 1; i >= 0; i--) {
+                    const p = this.sparkles[i];
+                    this.sparkleCtx.globalAlpha = Math.max(0, p.life);
+                    this.sparkleCtx.fillStyle = p.color;
+                    this.sparkleCtx.beginPath();
+                    this.sparkleCtx.arc(p.x, p.y, p.radius, 0, Math.PI * 2);
+                    this.sparkleCtx.fill();
+
+                    p.x += p.vx;
+                    p.y += p.vy;
+                    p.vy += 0.05; // gravity
+                    p.life -= p.decay;
+
+                    if (p.life <= 0) {
+                        this.sparkles.splice(i, 1);
+                    }
+                }
+
+                requestAnimationFrame(() => this.animate());
+            }
+        }
+
+        /**
+         * Procedural Christmas Message Generator
+         */
+        const ProceduralMessages = {
+            prefixes: [
+                "Que a paz e a luz", "Muitas alegrias e amor", "Que a esperança e a união",
+                "Desejo um Natal iluminado e", "Que a magia do Natal", "Muita saúde, paz e luz",
+                "Que a harmonia e o afeto", "Que a alegria do Natal", "Renove seus sonhos com fé e"
+            ],
+            endings: [
+                "iluminem o seu lar neste Natal.", "repletem seu Natal de infinitas alegrias.", "tragam bênçãos para toda sua família.",
+                "estejam sempre presentes no seu Natal.", "sejam os maiores presentes do seu Natal.", "aqueçam seu coração nesta Noite Feliz."
+            ],
+            shortDirects: [
+                "Que a paz ilumine sua casa neste Natal. ✨",
+                "Muitas alegrias e luz para o seu Natal! 🎄",
+                "O amor é o maior presente neste Natal! 🎁",
+                "Que a esperança renove seu coração neste Natal! 🌟",
+                "Um Natal doce, alegre e recheado de paz! 🍪",
+                "Sua luz deixa o mundo mais bonito. Feliz Natal! ❄️",
+                "Que a harmonia e a união abençoem seu Natal! ❤️",
+                "Acredite na magia da Noite de Natal! 🕊️",
+                "Sorrisos fartos e abraços quentes neste Natal! 🔔",
+                "Que o espírito natalino traga infinita paz! ⭐",
+                "Desejo a você um abençoado Feliz Natal! 🎄",
+                "Que o amor da Noite Feliz ilumine sua vida! ✨"
+            ],
+
+            generate() {
+                if (Math.random() > 0.35) {
+                    return this.shortDirects[Math.floor(Math.random() * this.shortDirects.length)];
+                } else {
+                    const p = this.prefixes[Math.floor(Math.random() * this.prefixes.length)];
+                    const e = this.endings[Math.floor(Math.random() * this.endings.length)];
+                    const emojis = ["✨", "🎄", "🎁", "🌟", "❄️", "❤️", "🕊️"];
+                    const emoji = emojis[Math.floor(Math.random() * emojis.length)];
+                    return `${p} ${e} ${emoji}`;
+                }
+            }
+        };
+
+        /**
+         * State & Game Logic Controller
+         */
+        class CookieApp {
+            constructor() {
+                this.clickCount = 0;
+                
+                // DOM Elements
+                this.wrapper = document.getElementById('cookieWrapper');
+                this.crackStage1 = document.getElementById('crackStage1');
+                this.crackStage2 = document.getElementById('crackStage2');
+                this.parchment = document.getElementById('parchmentCard');
+                this.statusText = document.getElementById('statusText');
+                this.statusIndicator = document.getElementById('statusIndicator');
+                this.btnReset = document.getElementById('btnReset');
+                this.fortuneText = document.getElementById('fortuneText');
+
+                this.initEvents();
+            }
+
+            initEvents() {
+                this.wrapper.addEventListener('click', (e) => this.handleCookieClick(e));
+                this.btnReset.addEventListener('click', () => this.resetCookie());
+            }
+
+            handleCookieClick(e) {
+                if (this.clickCount >= 3) return;
+
+                this.clickCount++;
+
+                const rect = this.wrapper.getBoundingClientRect();
+                const clickX = e.clientX || (rect.left + rect.width / 2);
+                const clickY = e.clientY || (rect.top + rect.height / 2);
+
+                if (this.clickCount === 1) {
+                    // Click 1
+                    audio.playCrack(0.6);
+                    ParticleSystem.addSparkles(clickX, clickY, 18);
+
+                    this.wrapper.classList.remove('shake-1', 'shake-2');
+                    void this.wrapper.offsetWidth;
+                    this.wrapper.classList.add('shake-1');
+
+                    this.crackStage1.style.opacity = '1';
+
+                    this.statusText.innerText = 'Clique mais 2 vezes...';
+                    this.statusIndicator.className = 'mt-2 sm:mt-3 px-3.5 py-1.5 rounded-full bg-amber-950/70 border border-amber-500/50 text-amber-200 text-xs sm:text-sm flex items-center gap-2 backdrop-blur-md transition-all';
+
+                } else if (this.clickCount === 2) {
+                    // Click 2
+                    audio.playCrack(1.2);
+                    ParticleSystem.addSparkles(clickX, clickY, 30);
+
+                    this.wrapper.classList.remove('shake-1', 'shake-2');
+                    void this.wrapper.offsetWidth;
+                    this.wrapper.classList.add('shake-2');
+
+                    this.crackStage1.style.opacity = '0';
+                    this.crackStage2.style.opacity = '1';
+
+                    this.statusText.innerText = 'Clique mais 1 vez...';
+                    this.statusIndicator.className = 'mt-2 sm:mt-3 px-3.5 py-1.5 rounded-full bg-orange-950/70 border border-orange-500/50 text-orange-200 text-xs sm:text-sm flex items-center gap-2 backdrop-blur-md transition-all';
+
+                } else if (this.clickCount === 3) {
+                    // Click 3 - Cookie completely vanishes!
+                    audio.playCrack(2.0);
+                    setTimeout(() => audio.playChristmasChime(), 120);
+
+                    ParticleSystem.addSparkles(rect.left + rect.width / 2, rect.top + rect.height / 2, 90, true);
+
+                    this.wrapper.classList.remove('floating-cookie', 'shake-1', 'shake-2');
+                    this.wrapper.classList.add('vanished');
+
+                    this.fortuneText.innerText = ProceduralMessages.generate();
+
+                    setTimeout(() => {
+                        this.parchment.classList.add('show');
+                        this.btnReset.classList.remove('hidden');
+                        this.statusIndicator.classList.add('hidden');
+                    }, 300);
+                }
+            }
+
+            resetCookie() {
+                audio.playSwoosh();
+
+                this.parchment.classList.remove('show');
+                this.btnReset.classList.add('hidden');
+
+                setTimeout(() => {
+                    this.clickCount = 0;
+
+                    this.wrapper.classList.remove('vanished');
+                    this.wrapper.classList.add('floating-cookie');
+                    
+                    this.crackStage1.style.opacity = '0';
+                    this.crackStage2.style.opacity = '0';
+
+                    this.statusText.innerText = 'Clique no biscoito para começar!';
+                    this.statusIndicator.className = 'mt-2 sm:mt-3 px-3.5 py-1.5 rounded-full bg-slate-900/60 border border-slate-700/50 text-slate-200 text-xs sm:text-sm flex items-center gap-2 backdrop-blur-md';
+                    this.statusIndicator.classList.remove('hidden');
+                }, 400);
+            }
+        }
+
+        window.addEventListener('load', () => {
+            ParticleSystem.init();
+            new CookieApp();
+        });
+    </script>
+</body>
+</html>
